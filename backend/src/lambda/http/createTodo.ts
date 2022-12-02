@@ -5,8 +5,7 @@ import { cors } from 'middy/middlewares'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 // import * as uuid from 'uuid'
 import { getUserId } from '../utils';
-// import { createTodo } from '../../businessLogic/todos'
-import { createTodo } from '../../helpers/todosAcess'
+import { createTodo } from '../../businessLogic/todos'
 import { todoBuilder } from '../../helpers/todos'
 
 export const handler = middy(

@@ -13,22 +13,43 @@ logger.info(XAWS)
 
 // TODO: Implement the dataLayer logic
 export async function createTodo(todoItem: TodoItem): Promise<TodoItem> {
-    await docClient.put({
-        TableName: todosTable,
-        Item: todoItem
-    }).promise()
+  await docClient.put({
+    TableName: todosTable,
+    Item: todoItem
+  }).promise()
 
-    return todoItem
+  return todoItem
+}
+
+export async function getTodosForUser(userId: string) {
+  const params = {
+    TableName: todosTable,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': {
+        S: userId
+      }
+    }
+  }
+  docClient.query(params, function (error, data) {
+    if (error) {
+      logger.error(error)
+      throw new Error(error.message)
+    }
+    else {
+      return data.Items
+    }
+  })
 }
 
 function createDynamoDBClient() {
-    if (process.env.IS_OFFLINE) {
-      console.log('Creating a local DynamoDB instance')
-      return new XAWS.DynamoDB.DocumentClient({
-        region: 'localhost',
-        endpoint: 'http://localhost:8000'
-      })
-    }
-  
-    return new XAWS.DynamoDB.DocumentClient()
+  if (process.env.IS_OFFLINE) {
+    console.log('Creating a local DynamoDB instance')
+    return new XAWS.DynamoDB.DocumentClient({
+      region: 'localhost',
+      endpoint: 'http://localhost:8000'
+    })
   }
+
+  return new XAWS.DynamoDB.DocumentClient()
+}
