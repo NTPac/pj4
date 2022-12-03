@@ -3,7 +3,7 @@ const AWSXRay = require('aws-xray-sdk')
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
-// import { TodoUpdate } from '../models/TodoUpdate';
+import { TodoUpdate } from '../models/TodoUpdate'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 const todosTable = process.env.TODOS_TABLE
@@ -31,7 +31,7 @@ export async function getTodosForUser(userId: string) {
       }
     }
   }
-  docClient.query(params, function (error, data) {
+  return docClient.query(params, function (error, data) {
     if (error) {
       logger.error(error)
       throw new Error(error.message)
@@ -40,6 +40,53 @@ export async function getTodosForUser(userId: string) {
       return data.Items
     }
   })
+}
+
+export async function deleteTodo(todoId: string, userId: string) {
+  const params = {
+    TableName: todosTable,
+    Key: {
+      todoId: todoId
+    },
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': {
+        S: userId
+      }
+    }
+  }
+  return docClient.delete(params, function (error, data) {
+    if (error) {
+      logger.error(error)
+      throw new Error(error.message)
+    }
+    else {
+      return data
+    }
+  })
+}
+
+export async function updateTodo(todoId: string, userId: string) : Promise<TodoUpdate> {
+  var params = {
+    TableName: todosTable,
+    Key: {
+      "todoId": todoId
+    },
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': {
+        S: userId
+      }
+    },
+    UpdateExpression: 'set #a = :x + :y',
+    ConditionExpression: '#a < :MAX',
+    ExpressionAttributeNames: {'#a' : 'Sum'},
+    ExpressionAttributeValues: {
+      ':x' : 20,
+      ':y' : 45,
+      ':MAX' : 100,
+    }
+  }
 }
 
 function createDynamoDBClient() {

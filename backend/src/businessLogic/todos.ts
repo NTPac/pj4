@@ -11,3 +11,8 @@ export async function getTodosForUser(userId: string): Promise<TodoItem> {
     const todoList = todosAcess.getTodosForUser(userId)
     return todoList
 }
+
+export async function deleteTodo(todoItem: string, userId: string): Promise<TodoItem> {
+    const todo = await todosAcess.deleteTodo(todoItem, userId)
+    return todo
+}
