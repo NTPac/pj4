@@ -8,7 +8,7 @@ export class TodoAttachmentUtils {
     constructor(
         private readonly s3 = new xaws.S3({ signatureVersion: 'v4' }),
         private readonly s3bucket = process.env.S3_BUCKET_NAME,
-        private readonly signedURLExpiration = process.env.SIGNED_URL_EXPIRATION
+        private readonly signedURLExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION)
     ) { }
 
     async getSignedUrl(bucketKey: string): Promise<string> {

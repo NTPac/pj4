@@ -13,7 +13,7 @@ export async function createTodo(todoItem: TodoItem): Promise<TodoItem> {
 }
 
 export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
-    const todoList = todosAcess.getTodosForUser(userId) || []
+    const todoList = todosAcess.getTodosForUser(userId)
     return todoList
 }
 

@@ -34,26 +34,13 @@ export class TodosAccess {
       TableName: this.todosTable,
       KeyConditionExpression: 'userId = :userId',
       ExpressionAttributeValues: {
-        ':userId': {
-          S: userId
-        }
+        ':userId': userId
       }
     }
     let result = null;
-    await this.docClient.query(params, function(error, data) {
-      if (error) {
-        logger.error(error)
-        throw error
-      }
-      else{
-        result = data.Items
-      }
-    })
+    result = await this.docClient.query(params).promise()
     
-    const items = result as TodoItem[]
-    logger.info(JSON.stringify({
-      items
-    }))
+    const items = result.Items as TodoItem[]
     return items
   }
 
@@ -123,13 +110,13 @@ export class TodosAccess {
 }
 
 function createDynamoDBClient() {
-  if (process.env.IS_OFFLINE) {
-    console.log('Creating a local DynamoDB instance')
-    return new XAWS.DynamoDB.DocumentClient({
-      region: 'localhost',
-      endpoint: 'http://localhost:8000'
-    })
-  }
+  // if (process.env.IS_OFFLINE) {
+  //   console.log('Creating a local DynamoDB instance')
+  //   return new XAWS.DynamoDB.DocumentClient({
+  //     region: 'localhost',
+  //     endpoint: 'http://localhost:8000'
+  //   })
+  // }
 
   return new XAWS.DynamoDB.DocumentClient()
 }
