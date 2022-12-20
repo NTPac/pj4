@@ -87,7 +87,7 @@ functions:
           cors: true
           authorizer: Auth
           request:
-            schema:
+            schemas:
               application/json: ${file(models/create-todo-model.json)}
           
     iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-create-todo-role-${self:provider.stage}
@@ -112,7 +112,7 @@ functions:
           cors: true
           authorizer: Auth
           request:
-            schema:
+            schemas:
               application/json: ${file(models/update-todo-model.json)}
           # reqValidatorName: RequestBodyValidator
           
