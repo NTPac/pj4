@@ -29,7 +29,7 @@ export class TodosAccess {
     return todoItem
   }
 
-  async getTodosForUser(userId: string): Promise<TodoItem[]>{
+  async getTodosForUser(userId: string): Promise<TodoItem[]> {
     const params = {
       TableName: this.todosTable,
       KeyConditionExpression: 'userId = :userId',
@@ -39,9 +39,25 @@ export class TodosAccess {
     }
     let result = null;
     result = await this.docClient.query(params).promise()
-    
+
     const items = result.Items as TodoItem[]
     return items
+  }
+
+  async getTodoForUserByTodoID(userId: string, todoId: string): Promise<TodoItem> {
+    const params = {
+      TableName: this.todosTable,
+      KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+      ExpressionAttributeValues: {
+        ':userId': userId,
+        ':todoId': todoId
+      }
+    }
+    let result = null;
+    result = await this.docClient.query(params).promise()
+
+    const items = result.Items as TodoItem[]
+    return items[0]
   }
 
   async deleteTodo(todoId: string, userId: string) {
@@ -102,11 +118,43 @@ export class TodosAccess {
         "todoId": todoId
       },
       UpdateExpression: "set attachmentUrl=:attachmentUrl",
-      ExpressionAttributeValues:{
-          ":attachmentUrl": `https://${this.s3bucket}.s3.amazonaws.com/${todoId}`
+      ExpressionAttributeValues: {
+        ":attachmentUrl": `https://${this.s3bucket}.s3.amazonaws.com/${todoId}`
       }
     }).promise()
-}
+  }
+  async getAttachmentUrl(userId: string, todoId: string): Promise<string> {
+    const params = {
+      TableName: this.todosTable,
+      KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+      ExpressionAttributeValues: {
+        ':userId': userId,
+        ':todoId': todoId
+      }
+    }
+    let result = null;
+    result = await this.docClient.query(params).promise()
+    let todos = result.Items as TodoItem[]
+    let todo = todos[0]
+    console.log(todos)
+    let url = todo.attachmentUrl
+    console.log(url)
+    return url
+  }
+
+  async deleteAttachmentUrl(userId: string, todoId: string): Promise<void> {
+    await this.docClient.update({
+      TableName: this.todosTable,
+      Key: {
+        "userId": userId,
+        "todoId": todoId
+      },
+      UpdateExpression: "set attachmentUrl=:attachmentUrl",
+      ExpressionAttributeValues: {
+        ":attachmentUrl": ""
+      }
+    }).promise()
+  }
 }
 
 function createDynamoDBClient() {

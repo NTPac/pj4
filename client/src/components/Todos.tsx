@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo, deleteTodoAttach } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -66,6 +66,15 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       this.setState({
         todos: this.state.todos.filter(todo => todo.todoId !== todoId)
       })
+    } catch {
+      alert('Todo deletion failed')
+    }
+  }
+
+  onTodoDeleteAttach = async (todoId: string) => {
+    try {
+      await deleteTodoAttach(this.props.auth.getIdToken(), todoId)
+      this.componentDidMount()
     } catch {
       alert('Todo deletion failed')
     }
@@ -178,6 +187,15 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 <Button
                   icon
                   color="blue"
+                  onClick={() => this.onTodoDeleteAttach(todo.todoId)}
+                >
+                  <Icon name="delete" />
+                </Button>
+              </Grid.Column>
+              <Grid.Column width={1} floated="right">
+                <Button
+                  icon
+                  color="blue"
                   onClick={() => this.onEditButtonClick(todo.todoId)}
                 >
                   <Icon name="pencil" />
@@ -192,9 +210,11 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
-              {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
-              )}
+              <Grid.Column width={16}>
+                {todo.attachmentUrl && (
+                  <Image src={todo.attachmentUrl} size="small" wrapped />
+                )}
+              </Grid.Column>
               <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>

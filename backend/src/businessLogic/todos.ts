@@ -17,6 +17,11 @@ export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
     return todoList
 }
 
+export async function getTodoForUserByTodoID(userId: string, todoId: string): Promise<TodoItem> {
+    const todo = todosAcess.getTodoForUserByTodoID(userId, todoId)
+    return todo
+} 
+
 export async function deleteTodo(todoItem: string, userId: string) {
     await todosAcess.deleteTodo(todoItem, userId)
 }
@@ -29,4 +34,16 @@ export async function createAttachmentPresignedUrl(todoId: string, userId: strin
     const uploadUrl = await todoAttachmentUtils.getSignedUrl(todoId)
     await todosAcess.updateAttachmentUrl(userId, todoId)
     return uploadUrl
+}
+
+export async function deleteAttachmentUrl(todoId: string, userId: string): Promise<void> {
+    try{
+        let url = await todosAcess.getAttachmentUrl(userId, todoId)
+        await todoAttachmentUtils.deleteTodoItemAttachment(url)
+        await todosAcess.deleteAttachmentUrl(userId, todoId)
+    }
+    catch (error) {
+        throw error
+    }
+    return
 }

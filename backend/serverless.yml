@@ -29,7 +29,7 @@ provider:
     TODOS_TABLE: todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     SIGNED_URL_EXPIRATION: 300
-    S3_BUCKET_NAME: todo-bucket-879646144467-${self:provider.stage}
+    S3_BUCKET_NAME: todo-bucket-449057176743-${self:provider.stage}
 
   #logs:
   # Enable API Gateway logs
@@ -125,6 +125,26 @@ functions:
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
+  DeleteTodoAttach:
+    handler: src/lambda/http/deleteTodoAttach.handler
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}/attachment
+          cors: true
+          authorizer: Auth
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-delete-todo-attach-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:*
+          - xray:PutTraceSegments 
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: "*"
+  
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
